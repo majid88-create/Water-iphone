@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>iPhone Sensor Dashboard Pro</title>
-  
-  <!-- FontAwesome Icons (untuk ikon sinyal, wifi, battery, dsb) -->
+
+  <!-- FontAwesome Icons -->
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
@@ -13,7 +13,7 @@
   
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  
+
   <style>
     /* ============ GLOBAL STYLES ============ */
     * {
@@ -29,7 +29,8 @@
       padding: 20px;
       min-height: 100vh;
     }
-    /* ============ CONTAINER (iPhone Style) ============ */
+
+    /* iPhone Container Style */
     .container {
       max-width: 500px;
       margin: 0 auto;
@@ -56,16 +57,15 @@
       padding: 5px 10px;
       font-size: 14px;
     }
-    /* Jam di pojok kiri. Ikon sinyal, wifi, battery di kanan. */
 
     h1 {
       text-align: center;
       margin: 15px 0;
-      color: #fff;
       font-size: 24px;
+      color: #fff;
     }
 
-    /* ============ TIME-RANGE SELECTOR (opsional) ============ */
+    /* TIME-RANGE SELECTOR */
     .time-range-selector {
       display: flex;
       justify-content: space-between;
@@ -90,19 +90,13 @@
       box-shadow: 0 2px 8px rgba(50, 215, 75, 0.3);
     }
 
-    /* ============ CHART CONTAINER ============ */
+    /* CHART CONTAINER */
     .chart-container {
       background: #2c2c2e;
       border-radius: 20px;
       padding: 15px;
       margin: 15px 0;
       position: relative;
-    }
-    .chart-title {
-      text-align: center;
-      margin-bottom: 10px;
-      color: #86868b;
-      font-size: 16px;
     }
     #sensorChart {
       max-height: 250px;
@@ -119,7 +113,7 @@
       font-size: 12px;
     }
 
-    /* ============ SENSOR GRID & CARD ============ */
+    /* SENSOR GRID & CARD */
     .sensor-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -166,34 +160,34 @@
       font-size: 12px;
       margin-top: 5px;
     }
-    /* Warna normal/warning */
-    .normal { color: #32d74b; } 
-    .warn { color: #ffd60a; }
-    .out-range { color: #ff3b30; }
-
+    .normal {
+      color: #32d74b;
+    }
+    .out-range {
+      color: #ff3b30;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- Bagian Status Bar iPhone -->
+    <!-- Status Bar -->
     <div class="status-bar">
       <span id="time">9:41</span>
       <div>
         <i class="fas fa-signal"></i>
-        <i class="fas fa-wifi" style="margin: 0 5px;"></i>
+        <i class="fas fa-wifi" style="margin:0 5px;"></i>
         <i class="fas fa-battery-three-quarters"></i>
       </div>
     </div>
 
-    <!-- Judul -->
     <h1>Sensor Dashboard Pro</h1>
 
-    <!-- Time Range Selector (tidak diimplementasi real filtering, hanya demo) -->
+    <!-- Time Range Selector (Per jam/hari) -->
     <div class="time-range-selector">
-      <button class="time-range-btn active" data-days="1">24J</button>
-      <button class="time-range-btn" data-days="3">3D</button>
-      <button class="time-range-btn" data-days="7">1MGG</button>
-      <button class="time-range-btn" data-days="30">1BLN</button>
+      <button class="time-range-btn active" data-hours="24">24J</button>
+      <button class="time-range-btn" data-hours="72">3D</button>
+      <button class="time-range-btn" data-hours="168">1MGG</button>
+      <button class="time-range-btn" data-hours="720">1BLN</button>
     </div>
 
     <!-- Chart Container -->
@@ -213,11 +207,9 @@
       <canvas id="sensorChart"></canvas>
     </div>
 
-    <!-- Sensor Grid -->
+    <!-- Sensor Cards (10 param) -->
     <div class="sensor-grid">
-      <!-- 10 Sensor Card. Nilai akan diisi via JavaScript -->
-      <!-- 1) SUHU -->
-      <div class="sensor-card" id="card-suhu">
+      <div class="sensor-card">
         <div class="sensor-header">
           <i class="fas fa-thermometer-half sensor-icon"></i>
           <div>
@@ -229,8 +221,7 @@
         <div class="warning normal" id="warn-suhu">Normal</div>
       </div>
 
-      <!-- 2) PH -->
-      <div class="sensor-card" id="card-ph">
+      <div class="sensor-card">
         <div class="sensor-header">
           <i class="fas fa-tint sensor-icon"></i>
           <div>
@@ -242,8 +233,7 @@
         <div class="warning normal" id="warn-ph">Normal</div>
       </div>
 
-      <!-- 3) DO -->
-      <div class="sensor-card" id="card-do">
+      <div class="sensor-card">
         <div class="sensor-header">
           <i class="fas fa-water sensor-icon"></i>
           <div>
@@ -255,8 +245,7 @@
         <div class="warning normal" id="warn-do">Normal</div>
       </div>
 
-      <!-- 4) NH3 -->
-      <div class="sensor-card" id="card-nh3">
+      <div class="sensor-card">
         <div class="sensor-header">
           <i class="fas fa-vial sensor-icon"></i>
           <div>
@@ -268,8 +257,7 @@
         <div class="warning normal" id="warn-nh3">Normal</div>
       </div>
 
-      <!-- 5) NH4 -->
-      <div class="sensor-card" id="card-nh4">
+      <div class="sensor-card">
         <div class="sensor-header">
           <i class="fas fa-vials sensor-icon"></i>
           <div>
@@ -281,8 +269,7 @@
         <div class="warning normal" id="warn-nh4">Normal</div>
       </div>
 
-      <!-- 6) KONDUKTIFITAS -->
-      <div class="sensor-card" id="card-konduktifitas">
+      <div class="sensor-card">
         <div class="sensor-header">
           <i class="fas fa-bolt sensor-icon"></i>
           <div>
@@ -294,8 +281,7 @@
         <div class="warning normal" id="warn-konduktifitas">Normal</div>
       </div>
 
-      <!-- 7) TURBIDITY -->
-      <div class="sensor-card" id="card-turbidity">
+      <div class="sensor-card">
         <div class="sensor-header">
           <i class="fas fa-tint-slash sensor-icon"></i>
           <div>
@@ -307,8 +293,7 @@
         <div class="warning normal" id="warn-turbidity">Normal</div>
       </div>
 
-      <!-- 8) TDS -->
-      <div class="sensor-card" id="card-tds">
+      <div class="sensor-card">
         <div class="sensor-header">
           <i class="fas fa-water sensor-icon"></i>
           <div>
@@ -320,8 +305,7 @@
         <div class="warning normal" id="warn-tds">Normal</div>
       </div>
 
-      <!-- 9) KH -->
-      <div class="sensor-card" id="card-kh">
+      <div class="sensor-card">
         <div class="sensor-header">
           <i class="fas fa-flask sensor-icon"></i>
           <div>
@@ -333,8 +317,7 @@
         <div class="warning normal" id="warn-kh">Normal</div>
       </div>
 
-      <!-- 10) GH -->
-      <div class="sensor-card" id="card-gh">
+      <div class="sensor-card">
         <div class="sensor-header">
           <i class="fas fa-flask sensor-icon"></i>
           <div>
@@ -349,23 +332,22 @@
   </div>
 
   <script>
-    // ========================================================================
-    // 1) UPDATE JAM (SUDUT KANAN ATAS)
-    // ========================================================================
+    // ----------------------------------------------------------------------------
+    // 1) UPDATE JAM DI STATUS BAR
+    // ----------------------------------------------------------------------------
     function updateTime() {
       const now = new Date();
-      const timeString = now.toLocaleTimeString("id-ID", {
+      document.getElementById("time").textContent = now.toLocaleTimeString("id-ID", {
         hour: "2-digit",
-        minute: "2-digit",
+        minute: "2-digit"
       });
-      document.getElementById("time").textContent = timeString;
     }
     setInterval(updateTime, 1000);
-    updateTime(); // panggil awal
+    updateTime();
 
-    // ========================================================================
-    // 2) MAPPING PARAMETER, RENTANG MIN-MAX
-    // ========================================================================
+    // ----------------------------------------------------------------------------
+    // 2) RENTANG NORMAL UNTUK SENSOR CARD
+    // ----------------------------------------------------------------------------
     const paramRanges = {
       suhu:           { min: 20,  max: 35 },
       ph:             { min: 6.5, max: 8.5 },
@@ -379,13 +361,12 @@
       gh:             { min: 50,  max: 200 }
     };
 
-    // ========================================================================
-    // 3) CHART.JS INISIALISASI
-    // ========================================================================
-    let sensorChart; // chart instance
+    // ----------------------------------------------------------------------------
+    // 3) CHART.JS
+    // ----------------------------------------------------------------------------
+    let sensorChart;
     const ctx = document.getElementById("sensorChart").getContext("2d");
 
-    // Untuk menampung data 20 titik per parameter
     const chartData = {
       suhu:           { labels: [], values: [] },
       ph:             { labels: [], values: [] },
@@ -412,9 +393,7 @@
       gh:             "#64d2ff"
     };
 
-    // Buat / update chart
     function renderChart(paramKey) {
-      // Hancurkan chart lama agar tidak menumpuk
       if (sensorChart) sensorChart.destroy();
 
       sensorChart = new Chart(ctx, {
@@ -430,9 +409,9 @@
               tension: 0.4,
               fill: true,
               pointRadius: 3,
-              borderWidth: 1.5,
-            },
-          ],
+              borderWidth: 1.5
+            }
+          ]
         },
         options: {
           responsive: true,
@@ -443,174 +422,194 @@
               backgroundColor: "#2c2c2e",
               titleColor: "#fff",
               bodyColor: "#fff",
-              borderColor: chartColors[paramKey] || "#32d74b",
-            },
+              borderColor: chartColors[paramKey] || "#32d74b"
+            }
           },
           scales: {
             x: {
               grid: { color: "#3a3a3c" },
-              ticks: { color: "#86868b" },
+              ticks: { color: "#86868b" }
+              // Data lama di kiri, data baru di kanan
             },
             y: {
               grid: { color: "#3a3a3c" },
               ticks: { color: "#86868b" },
               suggestedMin: paramRanges[paramKey].min,
               suggestedMax: paramRanges[paramKey].max
-            },
-          },
-        },
+            }
+          }
+        }
       });
     }
 
-    // Ketika user mengganti sensor di <select>
     document.getElementById("chartSelect").addEventListener("change", function() {
-      const paramKey = this.value;
-      renderChart(paramKey);
+      renderChart(this.value);
     });
 
-    // ========================================================================
-    // 4) FETCH DATA DARI GOOGLE SHEETS (20 data terakhir)
-    // ========================================================================
-    /**
-     * Struktur kolom:
-     * A: Time
-     * B: DO
-     * C: Suhu
-     * D: pH
-     * E: NH3
-     * F: NH4
-     * G: Konduktifitas
-     * H: Turbidity
-     * I: TDS
-     * J: KH
-     * K: GH
-     */
-    const SPREADSHEET_ID = "1WKS6JvggHcnZB5__d_jDWG6-W-RZX4NXabyZy77ZhCY"; // GANTI milik Anda
-    const SHEET_NAME = "Sheet1";
-    const RANGE = "A2:K1000"; // A sampai K
-    const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?sheet=${SHEET_NAME}&range=${RANGE}&tqx=out:json`;
+    // ----------------------------------------------------------------------------
+    // 4) GLOBAL DATA
+    //    Asumsi: baris 0 di spreadsheet => data terbaru
+    // ----------------------------------------------------------------------------
+    let globalAllData = [];
 
-    async function fetchSheetData() {
-      const response = await fetch(url);
-      const text = await response.text();
+    // ----------------------------------------------------------------------------
+    // 5) PARSE DATETIME "dd/MM/yyyy HH:mm:ss"
+    // ----------------------------------------------------------------------------
+    function parseDateTime(dateStr) {
+      if (!dateStr) return null;
+      const parts = dateStr.split(" ");
+      if (parts.length < 2) return null;
+      const [d,m,y] = parts[0].split("/");
+      const [H,Min,S] = parts[1].split(":");
+      if (!d || !m || !y || !H || !Min) return null;
+      return new Date(+y, +m-1, +d, +H, +Min, +S || 0);
+    }
 
-      // Hilangkan "/*O_o*/" dan beberapa char di awal/akhir
-      const json = JSON.parse(text.substr(47).slice(0, -2));
-      const rows = json.table.rows;
-
-      // Konversi ke array of object
-      const allData = rows.map(row => {
-        const timeCell = row.c[0];
-        // Pakai .f (formatted) jika ada
-        const timeValue = timeCell ? (timeCell.f ? timeCell.f : timeCell.v) : "";
-
-        return {
-          time:           timeValue,
-          do:             row.c[1]  ? parseFloat(row.c[1].v)  : null,
-          suhu:           row.c[2]  ? parseFloat(row.c[2].v)  : null,
-          ph:             row.c[3]  ? parseFloat(row.c[3].v)  : null,
-          nh3:            row.c[4]  ? parseFloat(row.c[4].v)  : null,
-          nh4:            row.c[5]  ? parseFloat(row.c[5].v)  : null,
-          konduktifitas:  row.c[6]  ? parseFloat(row.c[6].v)  : null,
-          turbidity:      row.c[7]  ? parseFloat(row.c[7].v)  : null,
-          tds:            row.c[8]  ? parseFloat(row.c[8].v)  : null,
-          kh:             row.c[9]  ? parseFloat(row.c[9].v)  : null,
-          gh:             row.c[10] ? parseFloat(row.c[10].v) : null
-        };
+    // ----------------------------------------------------------------------------
+    // 6) FILTER DATA (time >= now - X jam)
+    // ----------------------------------------------------------------------------
+    function filterDataByHours(hours) {
+      const now = Date.now();
+      const cutoff = now - hours * 3600 * 1000; // milis
+      return globalAllData.filter(item => {
+        const dt = parseDateTime(item.time);
+        if (!dt) return false;
+        return dt.getTime() >= cutoff;
       });
-
-      // Ambil 20 data terakhir
-      return allData.slice(-20);
     }
 
-    // ========================================================================
-    // 5) UPDATE SENSOR CARD
-    // ========================================================================
-    function updateSensorCard(paramKey, newValue) {
-      const { min, max } = paramRanges[paramKey];
-      const cardValEl = document.getElementById(`val-${paramKey}`);
-      const warnEl = document.getElementById(`warn-${paramKey}`);
+    // ----------------------------------------------------------------------------
+    // 7) UPDATE SENSOR CARD => data terbaru = allData[0]
+    // ----------------------------------------------------------------------------
+    function updateSensorCard(latestItem) {
+      for (let key in paramRanges) {
+        const valEl = document.getElementById(`val-${key}`);
+        const warnEl = document.getElementById(`warn-${key}`);
+        if (!latestItem || latestItem[key] == null) {
+          valEl.textContent = "-";
+          warnEl.textContent = "No Data";
+          warnEl.className = "warning out-range";
+          continue;
+        }
+        const val = latestItem[key];
+        valEl.textContent = val.toFixed(2);
 
-      if (newValue == null) {
-        cardValEl.textContent = "-";
-        warnEl.textContent = "Tidak ada data";
-        warnEl.className = "warning out-range";
-        return;
-      }
-
-      // Tampilkan 2 digit decimal (atau sesuai selera)
-      cardValEl.textContent = newValue.toFixed(2);
-
-      // Cek normal/warning
-      if (newValue < min || newValue > max) {
-        warnEl.textContent = "Out of Range!";
-        warnEl.className = "warning out-range";
-      } else {
-        warnEl.textContent = "Normal";
-        warnEl.className = "warning normal";
+        const { min, max } = paramRanges[key];
+        if (val < min || val > max) {
+          warnEl.textContent = "Out of Range!";
+          warnEl.className = "warning out-range";
+        } else {
+          warnEl.textContent = "Normal";
+          warnEl.className = "warning normal";
+        }
       }
     }
 
-    // ========================================================================
-    // 6) FUNGSI INIT
-    // ========================================================================
-    async function init() {
-      // 1) Ambil 20 data terakhir
-      const last20Data = await fetchSheetData();
-      if (!last20Data.length) {
-        console.log("Data kosong atau gagal diambil.");
-        return;
-      }
+    // ----------------------------------------------------------------------------
+    // 8) UPDATE CHART ( data lama -> kiri, data baru -> kanan )
+    // ----------------------------------------------------------------------------
+    function updateChartData(filtered) {
+      // Kita mau data paling lama di index 0, data terbaru di index akhir
+      // Sedangkan default allData[0] = data terbaru
+      // => kita reverse => [terbaru,...lama] => after reverse => [lama,...terbaru]
+      const reversed = [...filtered].reverse(); // index 0 => data lama
 
-      // 2) Isi chartData untuk setiap parameter
-      //    (urut dari data paling lama ke paling baru)
-      chartData.suhu.labels.length = 0;
-      chartData.suhu.values.length = 0;
-      // Bersihkan semua param sebelum diisi
+      // Bersihkan chartData
       for (let key in chartData) {
         chartData[key].labels = [];
         chartData[key].values = [];
       }
 
-      last20Data.forEach(item => {
-        const labelTime = item.time || "";
-        // isi ke chart
+      reversed.forEach((item, i) => {
+        const label = item.time || `Row-${i+1}`;
         for (let key in chartData) {
-          chartData[key].labels.push(labelTime);
+          chartData[key].labels.push(label);
           chartData[key].values.push(item[key] != null ? item[key] : null);
         }
       });
-
-      // 3) Update sensor-card pakai data paling baru (elemen terakhir = newest)
-      const newest = last20Data[last20Data.length - 1];
-      // paramKey => updateSensorCard
-      for (let key in chartData) {
-        updateSensorCard(key, newest[key]);
-      }
-
-      // 4) Render chart pertama kali: "suhu"
-      renderChart("suhu");
     }
 
-    // Panggil init
-    init();
+    // ----------------------------------------------------------------------------
+    // 9) APPLY TIME RANGE
+    // ----------------------------------------------------------------------------
+    function applyTimeRange(hours) {
+      // Filter data
+      const filtered = filterDataByHours(hours);
+      // Sensor card => data terbaru = filtered[0] (karena [0] = newest)
+      const newest = filtered[0] || null;
+      updateSensorCard(newest);
 
-    // ========================================================================
-    // 7) TIME-RANGE BUTTONS (Opsional)
-    // ========================================================================
-    // Belum diimplementasi untuk filter data beneran.
-    // Di sini hanya contoh styling.
+      // Chart
+      updateChartData(filtered);
+      renderChart(document.getElementById("chartSelect").value);
+    }
+
+    // ----------------------------------------------------------------------------
+    // 10) TIME RANGE BUTTON
+    // ----------------------------------------------------------------------------
     document.querySelectorAll(".time-range-btn").forEach(btn => {
       btn.addEventListener("click", () => {
         document
           .querySelectorAll(".time-range-btn")
           .forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
-        const rangeDays = btn.dataset.days;
-        // Anda bisa kembangkan: fetch data sesuai rangeDays, dsb.
-        console.log("Range selected:", rangeDays);
+
+        const hrs = parseInt(btn.dataset.hours);
+        applyTimeRange(hrs);
       });
     });
+
+    // ----------------------------------------------------------------------------
+    // 11) FETCH DATA SETIAP 2 DETIK
+    // ----------------------------------------------------------------------------
+    const SPREADSHEET_ID = "1WKS6JvggHcnZB5__d_jDWG6-W-RZX4NXabyZy77ZhCY"; // GANTI
+    const SHEET_NAME     = "Sheet1";
+    const RANGE          = "A:K";
+    const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?sheet=${SHEET_NAME}&range=${RANGE}&tqx=out:json`;
+
+    async function refreshData() {
+      try {
+        const response = await fetch(url);
+        const text = await response.text();
+        const json = JSON.parse(text.substr(47).slice(0, -2));
+        const rows = json.table.rows;
+
+        // Asumsi baris 0 => data terbaru
+        // Jika sebaliknya, lakukan rows.reverse()
+        globalAllData = rows.map(row => {
+          const timeCell = row.c[0];
+          const timeVal  = timeCell ? (timeCell.f || timeCell.v) : "";
+          return {
+            time:           timeVal,
+            do:             row.c[1]  ? parseFloat(row.c[1].v)  : null,
+            suhu:           row.c[2]  ? parseFloat(row.c[2].v)  : null,
+            ph:             row.c[3]  ? parseFloat(row.c[3].v)  : null,
+            nh3:            row.c[4]  ? parseFloat(row.c[4].v)  : null,
+            nh4:            row.c[5]  ? parseFloat(row.c[5].v)  : null,
+            konduktifitas:  row.c[6]  ? parseFloat(row.c[6].v)  : null,
+            turbidity:      row.c[7]  ? parseFloat(row.c[7].v)  : null,
+            tds:            row.c[8]  ? parseFloat(row.c[8].v)  : null,
+            kh:             row.c[9]  ? parseFloat(row.c[9].v)  : null,
+            gh:             row.c[10] ? parseFloat(row.c[10].v) : null
+          };
+        });
+
+        // Lihat time range hours yang aktif
+        const activeBtn = document.querySelector(".time-range-btn.active");
+        const hrs = activeBtn ? parseInt(activeBtn.dataset.hours) : 24;
+        applyTimeRange(hrs);
+      } catch (err) {
+        console.log("Fetch data error:", err);
+      }
+    }
+
+    // INIT
+    async function init() {
+      await refreshData();          // pertama
+      setInterval(refreshData, 2000); // tiap 2 detik
+    }
+
+    init();
   </script>
 </body>
 </html>
