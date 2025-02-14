@@ -39,6 +39,7 @@
       padding: 20px;
       box-shadow: 0 0 50px rgba(255, 255, 255, 0.1);
       position: relative;
+      animation: fadeIn 0.8s ease-out;
     }
     .container::before {
       content: "";
@@ -51,11 +52,15 @@
       background: #1c1c1e;
       border-radius: 0 0 20px 20px;
     }
+
+    /* STATUS BAR (HANYA MENAMPILKAN TANGGAL & JAM DARI DATA SPREADSHEET) */
     .status-bar {
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
+      align-items: center;
       padding: 5px 10px;
       font-size: 14px;
+      font-weight: bold;
     }
 
     h1 {
@@ -84,10 +89,14 @@
       cursor: pointer;
       transition: all 0.3s ease;
     }
+    .time-range-btn:hover {
+      background: #48484a;
+    }
     .time-range-btn.active {
       background: linear-gradient(45deg, #32d74b, #0a84ff);
       color: #fff;
       box-shadow: 0 2px 8px rgba(50, 215, 75, 0.3);
+      animation: pulse 1s ease;
     }
 
     /* CHART CONTAINER */
@@ -97,16 +106,18 @@
       padding: 15px;
       margin: 15px 0;
       position: relative;
+      overflow: hidden;
     }
     #sensorChart {
       max-height: 250px;
+      transition: all 0.3s ease;
     }
-    .chart-selector {
+    /* Label sensor (pengganti dropdown) */
+    .chart-sensor-label {
       position: absolute;
       top: 10px;
       right: 10px;
       background: #3a3a3c;
-      border: none;
       color: #fff;
       padding: 5px 10px;
       border-radius: 10px;
@@ -125,6 +136,9 @@
       border-radius: 20px;
       padding: 15px;
       transition: transform 0.3s;
+      cursor: pointer;
+      opacity: 0;
+      animation: fadeIn 0.5s ease forwards;
     }
     .sensor-card:hover {
       transform: scale(1.03);
@@ -146,6 +160,7 @@
       background: linear-gradient(45deg, #32d74b, #0a84ff);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .sensor-range {
       font-size: 12px;
@@ -159,57 +174,107 @@
     .warning {
       font-size: 12px;
       margin-top: 5px;
+      transition: all 0.3s ease;
+      opacity: 0;
+      transform: translateY(5px);
+    }
+    .warning.show {
+      opacity: 1;
+      transform: translateY(0);
     }
     .normal {
       color: #32d74b;
     }
     .out-range {
       color: #ff3b30;
+      /* Efek blink untuk "Bahaya!" */
+      animation: blink 1s infinite;
+    }
+
+    /* Animasi untuk background chart */
+    .chart-container::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(
+        45deg,
+        rgba(50, 215, 75, 0.1),
+        rgba(10, 132, 255, 0.1),
+        rgba(255, 59, 48, 0.1)
+      );
+      background-size: 300% 300%;
+      animation: chartGradient 8s ease infinite;
+      pointer-events: none;
+    }
+
+    /* Delay animasi untuk setiap sensor-card */
+    .sensor-card:nth-child(1)  { animation-delay: 0.2s; }
+    .sensor-card:nth-child(2)  { animation-delay: 0.3s; }
+    .sensor-card:nth-child(3)  { animation-delay: 0.4s; }
+    .sensor-card:nth-child(4)  { animation-delay: 0.5s; }
+    .sensor-card:nth-child(5)  { animation-delay: 0.6s; }
+    .sensor-card:nth-child(6)  { animation-delay: 0.7s; }
+    .sensor-card:nth-child(7)  { animation-delay: 0.8s; }
+    .sensor-card:nth-child(8)  { animation-delay: 0.9s; }
+    .sensor-card:nth-child(9)  { animation-delay: 1.0s; }
+    .sensor-card:nth-child(10) { animation-delay: 1.1s; }
+
+    /* ============ KEYFRAMES ============ */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    @keyframes pulse {
+      0%   { transform: scale(1); }
+      50%  { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    @keyframes chartGradient {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    /* Blink untuk "Bahaya!" */
+    @keyframes blink {
+      0%, 49%  { opacity: 1; }
+      50%, 100% { opacity: 0; }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- Status Bar -->
+    <!-- STATUS BAR (hanya menampilkan jam & tanggal data terbaru) -->
     <div class="status-bar">
-      <span id="time">9:41</span>
-      <div>
-        <i class="fas fa-signal"></i>
-        <i class="fas fa-wifi" style="margin:0 5px;"></i>
-        <i class="fas fa-battery-three-quarters"></i>
-      </div>
+      <span id="latest-data-time">Memuat...</span>
     </div>
 
     <h1>Sensor Dashboard Pro</h1>
 
-    <!-- Time Range Selector (Per jam/hari) -->
+    <!-- TIME RANGE SELECTOR -->
     <div class="time-range-selector">
+      <button class="time-range-btn" data-custom="60">1J</button> <!-- tombol untuk 60 data terakhir -->
       <button class="time-range-btn active" data-hours="24">24J</button>
       <button class="time-range-btn" data-hours="72">3D</button>
       <button class="time-range-btn" data-hours="168">1MGG</button>
       <button class="time-range-btn" data-hours="720">1BLN</button>
     </div>
 
-    <!-- Chart Container -->
+    <!-- CHART CONTAINER -->
     <div class="chart-container">
-      <select class="chart-selector" id="chartSelect">
-        <option value="suhu">Suhu</option>
-        <option value="ph">pH</option>
-        <option value="do">DO</option>
-        <option value="nh3">NH3</option>
-        <option value="nh4">NH4</option>
-        <option value="konduktifitas">Konduktifitas</option>
-        <option value="turbidity">Turbidity</option>
-        <option value="tds">TDS</option>
-        <option value="kh">KH</option>
-        <option value="gh">GH</option>
-      </select>
+      <div id="chartSensorLabel" class="chart-sensor-label">Suhu</div>
       <canvas id="sensorChart"></canvas>
     </div>
 
-    <!-- Sensor Cards (10 param) -->
+    <!-- SENSOR GRID -->
     <div class="sensor-grid">
-      <div class="sensor-card">
+      <!-- SUHU -->
+      <div class="sensor-card" data-sensor="suhu">
         <div class="sensor-header">
           <i class="fas fa-thermometer-half sensor-icon"></i>
           <div>
@@ -220,8 +285,8 @@
         <div class="sensor-name">Suhu</div>
         <div class="warning normal" id="warn-suhu">Normal</div>
       </div>
-
-      <div class="sensor-card">
+      <!-- PH -->
+      <div class="sensor-card" data-sensor="ph">
         <div class="sensor-header">
           <i class="fas fa-tint sensor-icon"></i>
           <div>
@@ -232,8 +297,8 @@
         <div class="sensor-name">pH</div>
         <div class="warning normal" id="warn-ph">Normal</div>
       </div>
-
-      <div class="sensor-card">
+      <!-- DO -->
+      <div class="sensor-card" data-sensor="do">
         <div class="sensor-header">
           <i class="fas fa-water sensor-icon"></i>
           <div>
@@ -244,8 +309,8 @@
         <div class="sensor-name">DO</div>
         <div class="warning normal" id="warn-do">Normal</div>
       </div>
-
-      <div class="sensor-card">
+      <!-- NH3 -->
+      <div class="sensor-card" data-sensor="nh3">
         <div class="sensor-header">
           <i class="fas fa-vial sensor-icon"></i>
           <div>
@@ -256,8 +321,8 @@
         <div class="sensor-name">NH3</div>
         <div class="warning normal" id="warn-nh3">Normal</div>
       </div>
-
-      <div class="sensor-card">
+      <!-- NH4 -->
+      <div class="sensor-card" data-sensor="nh4">
         <div class="sensor-header">
           <i class="fas fa-vials sensor-icon"></i>
           <div>
@@ -268,8 +333,8 @@
         <div class="sensor-name">NH4</div>
         <div class="warning normal" id="warn-nh4">Normal</div>
       </div>
-
-      <div class="sensor-card">
+      <!-- KONDUKTIFITAS -->
+      <div class="sensor-card" data-sensor="konduktifitas">
         <div class="sensor-header">
           <i class="fas fa-bolt sensor-icon"></i>
           <div>
@@ -280,8 +345,8 @@
         <div class="sensor-name">Konduktifitas</div>
         <div class="warning normal" id="warn-konduktifitas">Normal</div>
       </div>
-
-      <div class="sensor-card">
+      <!-- TURBIDITY -->
+      <div class="sensor-card" data-sensor="turbidity">
         <div class="sensor-header">
           <i class="fas fa-tint-slash sensor-icon"></i>
           <div>
@@ -292,8 +357,8 @@
         <div class="sensor-name">Turbidity</div>
         <div class="warning normal" id="warn-turbidity">Normal</div>
       </div>
-
-      <div class="sensor-card">
+      <!-- TDS -->
+      <div class="sensor-card" data-sensor="tds">
         <div class="sensor-header">
           <i class="fas fa-water sensor-icon"></i>
           <div>
@@ -304,8 +369,8 @@
         <div class="sensor-name">TDS</div>
         <div class="warning normal" id="warn-tds">Normal</div>
       </div>
-
-      <div class="sensor-card">
+      <!-- KH -->
+      <div class="sensor-card" data-sensor="kh">
         <div class="sensor-header">
           <i class="fas fa-flask sensor-icon"></i>
           <div>
@@ -316,8 +381,8 @@
         <div class="sensor-name">KH</div>
         <div class="warning normal" id="warn-kh">Normal</div>
       </div>
-
-      <div class="sensor-card">
+      <!-- GH -->
+      <div class="sensor-card" data-sensor="gh">
         <div class="sensor-header">
           <i class="fas fa-flask sensor-icon"></i>
           <div>
@@ -332,38 +397,39 @@
   </div>
 
   <script>
-    // ----------------------------------------------------------------------------
-    // 1) UPDATE JAM DI STATUS BAR
-    // ----------------------------------------------------------------------------
-    function updateTime() {
-      const now = new Date();
-      document.getElementById("time").textContent = now.toLocaleTimeString("id-ID", {
-        hour: "2-digit",
-        minute: "2-digit"
-      });
-    }
-    setInterval(updateTime, 1000);
-    updateTime();
-
-    // ----------------------------------------------------------------------------
-    // 2) RENTANG NORMAL UNTUK SENSOR CARD
-    // ----------------------------------------------------------------------------
+    // ------------------------------------------------------------
+    // PARAMETER RENTANG SETIAP SENSOR
+    // ------------------------------------------------------------
     const paramRanges = {
-      suhu:           { min: 20,  max: 35 },
-      ph:             { min: 6.5, max: 8.5 },
-      do:             { min: 4,   max: 10 },
-      nh3:            { min: 0,   max: 1 },
-      nh4:            { min: 0,   max: 5 },
-      konduktifitas:  { min: 100, max: 2000 },
-      turbidity:      { min: 0,   max: 10 },
-      tds:            { min: 100, max: 2000 },
-      kh:             { min: 50,  max: 200 },
-      gh:             { min: 50,  max: 200 }
+      suhu:           { min: 27.5,  max: 33 },
+      ph:             { min: 7,     max: 8.3 },
+      do:             { min: 5,     max: 10 },
+      nh3:            { min: 0,     max: 0.12 },
+      nh4:            { min: 0,     max: 1 },
+      konduktifitas:  { min: 10,    max: 30 },
+      turbidity:      { min: 20,    max: 1500 },
+      tds:            { min: 1200,  max: 1500 },
+      kh:             { min: 80,    max: 200 },
+      gh:             { min: 50,    max: 150 }
     };
 
-    // ----------------------------------------------------------------------------
-    // 3) CHART.JS
-    // ----------------------------------------------------------------------------
+    // Nama sensor lebih "manusiawi"
+    const sensorDisplayName = {
+      suhu: "Suhu",
+      ph: "pH",
+      do: "DO",
+      nh3: "NH3",
+      nh4: "NH4",
+      konduktifitas: "Konduktifitas",
+      turbidity: "Turbidity",
+      tds: "TDS",
+      kh: "KH",
+      gh: "GH"
+    };
+
+    // ------------------------------------------------------------
+    // CHART.JS SETUP
+    // ------------------------------------------------------------
     let sensorChart;
     const ctx = document.getElementById("sensorChart").getContext("2d");
 
@@ -393,8 +459,18 @@
       gh:             "#64d2ff"
     };
 
+    // Sensor yang sedang aktif ditampilkan grafiknya
+    let currentSensor = "suhu";
+
+    // ------------------------------------------------------------
+    // FUNGSI RENDER CHART
+    // ------------------------------------------------------------
     function renderChart(paramKey) {
-      if (sensorChart) sensorChart.destroy();
+      if (sensorChart) {
+        // Hancurkan chart lama agar tidak numpuk
+        sensorChart.destroy();
+      }
+      const label = sensorDisplayName[paramKey] || paramKey.toUpperCase();
 
       sensorChart = new Chart(ctx, {
         type: "line",
@@ -402,14 +478,14 @@
           labels: chartData[paramKey].labels,
           datasets: [
             {
-              label: paramKey.toUpperCase(),
+              label: label,
               data: chartData[paramKey].values,
               borderColor: chartColors[paramKey] || "#32d74b",
               backgroundColor: (chartColors[paramKey] || "#32d74b") + "33",
-              tension: 0.4,
+              tension: 0.3,      // lengkung garis
               fill: true,
-              pointRadius: 3,
-              borderWidth: 1.5
+              pointRadius: 2,    // titik data
+              borderWidth: 3     // garis lebih tebal
             }
           ]
         },
@@ -427,34 +503,29 @@
           },
           scales: {
             x: {
-              grid: { color: "#3a3a3c" },
-              ticks: { color: "#86868b" }
-              // Data lama di kiri, data baru di kanan
+              grid: { display: false },
+              ticks: { display: false }
             },
             y: {
               grid: { color: "#3a3a3c" },
               ticks: { color: "#86868b" },
-              suggestedMin: paramRanges[paramKey].min,
-              suggestedMax: paramRanges[paramKey].max
+              // Tambahan agar batas sumbu Y sedikit melampaui min & max
+              suggestedMin: paramRanges[paramKey].min * 0.8,
+              suggestedMax: paramRanges[paramKey].max * 1.2
             }
           }
         }
       });
+
+      document.getElementById("chartSensorLabel").textContent = label;
     }
 
-    document.getElementById("chartSelect").addEventListener("change", function() {
-      renderChart(this.value);
-    });
-
-    // ----------------------------------------------------------------------------
-    // 4) GLOBAL DATA
-    //    Asumsi: baris 0 di spreadsheet => data terbaru
-    // ----------------------------------------------------------------------------
+    // ------------------------------------------------------------
+    // MENYIMPAN SEMUA DATA DARI SPREADSHEET
+    // ------------------------------------------------------------
     let globalAllData = [];
 
-    // ----------------------------------------------------------------------------
-    // 5) PARSE DATETIME "dd/MM/yyyy HH:mm:ss"
-    // ----------------------------------------------------------------------------
+    // Membantu parsing tanggal "dd/MM/yyyy HH:mm:ss"
     function parseDateTime(dateStr) {
       if (!dateStr) return null;
       const parts = dateStr.split(" ");
@@ -462,15 +533,13 @@
       const [d,m,y] = parts[0].split("/");
       const [H,Min,S] = parts[1].split(":");
       if (!d || !m || !y || !H || !Min) return null;
-      return new Date(+y, +m-1, +d, +H, +Min, +S || 0);
+      return new Date(+y, +m-1, +d, +H, +Min, +S||0);
     }
 
-    // ----------------------------------------------------------------------------
-    // 6) FILTER DATA (time >= now - X jam)
-    // ----------------------------------------------------------------------------
+    // Filter data berdasar jam
     function filterDataByHours(hours) {
       const now = Date.now();
-      const cutoff = now - hours * 3600 * 1000; // milis
+      const cutoff = now - hours * 3600 * 1000;
       return globalAllData.filter(item => {
         const dt = parseDateTime(item.time);
         if (!dt) return false;
@@ -478,48 +547,51 @@
       });
     }
 
-    // ----------------------------------------------------------------------------
-    // 7) UPDATE SENSOR CARD => data terbaru = allData[0]
-    // ----------------------------------------------------------------------------
+    // ------------------------------------------------------------
+    // UPDATE SENSOR CARD
+    // ------------------------------------------------------------
     function updateSensorCard(latestItem) {
       for (let key in paramRanges) {
-        const valEl = document.getElementById(`val-${key}`);
+        const valEl  = document.getElementById(`val-${key}`);
         const warnEl = document.getElementById(`warn-${key}`);
+
+        // Efek animasi kecil pada angka
+        valEl.style.transform = "scale(1.1)";
+        setTimeout(() => {
+          valEl.style.transform = "scale(1)";
+        }, 200);
+
         if (!latestItem || latestItem[key] == null) {
           valEl.textContent = "-";
           warnEl.textContent = "No Data";
-          warnEl.className = "warning out-range";
+          warnEl.className = "warning out-range show";
           continue;
         }
-        const val = latestItem[key];
-        valEl.textContent = val.toFixed(2);
+
+        const val = latestItem[key].toFixed(2);
+        valEl.textContent = val;
 
         const { min, max } = paramRanges[key];
-        if (val < min || val > max) {
-          warnEl.textContent = "Out of Range!";
-          warnEl.className = "warning out-range";
+        if (latestItem[key] < min || latestItem[key] > max) {
+          warnEl.textContent = "Bahaya!";
+          warnEl.className = "warning out-range show";
         } else {
           warnEl.textContent = "Normal";
-          warnEl.className = "warning normal";
+          warnEl.className = "warning normal show";
         }
       }
     }
 
-    // ----------------------------------------------------------------------------
-    // 8) UPDATE CHART ( data lama -> kiri, data baru -> kanan )
-    // ----------------------------------------------------------------------------
+    // ------------------------------------------------------------
+    // UPDATE DATA DI CHART
+    // ------------------------------------------------------------
     function updateChartData(filtered) {
-      // Kita mau data paling lama di index 0, data terbaru di index akhir
-      // Sedangkan default allData[0] = data terbaru
-      // => kita reverse => [terbaru,...lama] => after reverse => [lama,...terbaru]
-      const reversed = [...filtered].reverse(); // index 0 => data lama
-
-      // Bersihkan chartData
+      // default: data di baris 0 => terbaru, jadi kita reverse
+      const reversed = [...filtered].reverse();
       for (let key in chartData) {
         chartData[key].labels = [];
         chartData[key].values = [];
       }
-
       reversed.forEach((item, i) => {
         const label = item.time || `Row-${i+1}`;
         for (let key in chartData) {
@@ -529,24 +601,32 @@
       });
     }
 
-    // ----------------------------------------------------------------------------
-    // 9) APPLY TIME RANGE
-    // ----------------------------------------------------------------------------
-    function applyTimeRange(hours) {
-      // Filter data
-      const filtered = filterDataByHours(hours);
-      // Sensor card => data terbaru = filtered[0] (karena [0] = newest)
+    // ------------------------------------------------------------
+    // FUNGSI APPLY TIME RANGE
+    // ------------------------------------------------------------
+    function applyTimeRange(hours, customLastN) {
+      // customLastN = 60, berarti ambil 60 data terbaru (sesuai perintah)
+      let filtered = [];
+
+      if (customLastN) {
+        // Ambil data 60 terbaru saja
+        filtered = globalAllData.slice(0, customLastN);
+      } else {
+        // Filter data normal berdasarkan jam
+        filtered = filterDataByHours(hours);
+      }
+
+      // Data terbaru => index [0] (karena globalAllData[0] adalah terbaru)
       const newest = filtered[0] || null;
       updateSensorCard(newest);
 
-      // Chart
       updateChartData(filtered);
-      renderChart(document.getElementById("chartSelect").value);
+      renderChart(currentSensor);
     }
 
-    // ----------------------------------------------------------------------------
-    // 10) TIME RANGE BUTTON
-    // ----------------------------------------------------------------------------
+    // ------------------------------------------------------------
+    // EVENT TIME RANGE BUTTON
+    // ------------------------------------------------------------
     document.querySelectorAll(".time-range-btn").forEach(btn => {
       btn.addEventListener("click", () => {
         document
@@ -554,29 +634,45 @@
           .forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
 
-        const hrs = parseInt(btn.dataset.hours);
-        applyTimeRange(hrs);
+        // Cek apakah tombol punya data-custom="60" (1 jam -> 60 data)
+        if (btn.dataset.custom === "60") {
+          applyTimeRange(null, 60);
+        } else {
+          const hrs = parseInt(btn.dataset.hours);
+          applyTimeRange(hrs, null);
+        }
       });
     });
 
-    // ----------------------------------------------------------------------------
-    // 11) FETCH DATA SETIAP 2 DETIK
-    // ----------------------------------------------------------------------------
-    const SPREADSHEET_ID = "1WKS6JvggHcnZB5__d_jDWG6-W-RZX4NXabyZy77ZhCY"; // GANTI
+    // ------------------------------------------------------------
+    // EVENT PADA KARTU SENSOR (GANTI CHART)
+    // ------------------------------------------------------------
+    document.querySelectorAll(".sensor-card").forEach(card => {
+      card.addEventListener("click", () => {
+        const sensorType = card.dataset.sensor;
+        currentSensor = sensorType;
+        renderChart(sensorType);
+      });
+    });
+
+    // ------------------------------------------------------------
+    // FETCH DATA SPREADSHEET
+    // ------------------------------------------------------------
+    const SPREADSHEET_ID = "1WKS6JvggHcnZB5__d_jDWG6-W-RZX4NXabyZy77ZhCY"; // Ganti sesuai kebutuhan
     const SHEET_NAME     = "Sheet1";
     const RANGE          = "A:K";
     const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?sheet=${SHEET_NAME}&range=${RANGE}&tqx=out:json`;
 
     async function refreshData() {
       try {
-        const response = await fetch(url);
-        const text = await response.text();
+        const res = await fetch(url);
+        const text = await res.text();
         const json = JSON.parse(text.substr(47).slice(0, -2));
         const rows = json.table.rows;
 
-        // Asumsi baris 0 => data terbaru
-        // Jika sebaliknya, lakukan rows.reverse()
+        // Memetakan data
         globalAllData = rows.map(row => {
+          // row.c[0] -> time
           const timeCell = row.c[0];
           const timeVal  = timeCell ? (timeCell.f || timeCell.v) : "";
           return {
@@ -594,19 +690,35 @@
           };
         });
 
-        // Lihat time range hours yang aktif
+        // Tampilkan jam & tanggal data terbaru (index [0])
+        if (globalAllData[0]) {
+          document.getElementById("latest-data-time").textContent =
+            `Data Terakhir: ${globalAllData[0].time}`;
+        }
+
+        // Ambil range dari tombol yg sedang aktif
         const activeBtn = document.querySelector(".time-range-btn.active");
-        const hrs = activeBtn ? parseInt(activeBtn.dataset.hours) : 24;
-        applyTimeRange(hrs);
+        if (!activeBtn) {
+          // Default 24 jam
+          applyTimeRange(24, null);
+          return;
+        }
+
+        if (activeBtn.dataset.custom === "60") {
+          applyTimeRange(null, 60);
+        } else {
+          const hrs = parseInt(activeBtn.dataset.hours) || 24;
+          applyTimeRange(hrs, null);
+        }
+
       } catch (err) {
-        console.log("Fetch data error:", err);
+        console.log("Error fetch data:", err);
       }
     }
 
-    // INIT
     async function init() {
-      await refreshData();          // pertama
-      setInterval(refreshData, 2000); // tiap 2 detik
+      await refreshData();             // Fetch pertama
+      setInterval(refreshData, 30000); // Refresh setiap 30 detik
     }
 
     init();
